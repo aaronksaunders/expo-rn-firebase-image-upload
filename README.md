@@ -78,7 +78,7 @@ Helper functions...
 
     return output;
   }
-  
+```  
           
 
 #### make sure you set your firebase configuration in `HomeScreen.js` on line 26
