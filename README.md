@@ -44,7 +44,7 @@ Upload function
     }
   }
 ```  
-Helper functions...
+Helper functions... See [https://snack.expo.io/BktW0xdje](https://snack.expo.io/BktW0xdje)
 
 ```Javascript
 
