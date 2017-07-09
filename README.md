@@ -1,4 +1,3 @@
-# expo-rn-firebase-image-upload
 ## Example of how to upload image in expo with react-native and firebase
 
 **Problem:** Issue uploading files in react-native in expo without detaching and issues with base64 images.
@@ -29,4 +28,4 @@
 ```
           
 
-### make sure you set your firebase configuration in `HomeScreen.js` on line 26
+#### make sure you set your firebase configuration in `HomeScreen.js` on line 26
