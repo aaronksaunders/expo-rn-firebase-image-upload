@@ -2,7 +2,7 @@
 
 **Problem:** Issue uploading files in react-native in expo without detaching and issues with base64 images.
 
-**Solution:** Use `XMLHttpRequest` read in the file and convert it to a `Uint8Array` the upload it to firebase
+**Solution: [Works on IOS Only]** Use `XMLHttpRequest` read in the file and convert it to a `Uint8Array` the upload it to firebase
 
 ```javascript
     var xhr = new XMLHttpRequest();
