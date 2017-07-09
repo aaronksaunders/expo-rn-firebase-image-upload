@@ -9,7 +9,8 @@ import {
   TouchableOpacity,
   View,
   NativeModules,
-  ProgressViewIOS
+  ProgressViewIOS,
+  Dimensions
 } from 'react-native';
 
 import { MonoText } from '../components/StyledText';
@@ -19,7 +20,6 @@ import Exponent, {
   ImagePicker,
   registerRootComponent,
 } from 'expo';
-
 
 import * as firebase from 'firebase';
 
@@ -36,18 +36,30 @@ export default class HomeScreen extends React.Component {
 
 
   state = {
-    progress: 1
+    progress: 1,
+    avatarSource: null
   }
 
 
   render() {
+    let w = Dimensions.get('window').width
     return (
       <View style={styles.container}>
         <ScrollView
           style={styles.container}
           contentContainerStyle={styles.contentContainer}>
 
-
+          {this.state.avatarSource == null ? null :
+            <Image
+              source={{ uri: this.state.avatarSource }}
+              style={{
+                alignSelf: 'center',
+                height: w * .80,
+                width: w * .80,
+                borderWidth: 1,
+              }}
+              resizeMode="contain"
+            />}
           <View style={styles.helpContainer}>
             <TouchableOpacity
               onPress={() => this._pickImage(false)}
@@ -80,82 +92,100 @@ export default class HomeScreen extends React.Component {
   }
 
 
-
-  _uploadAsByteArray = async (pickerResult, cb) => {
+  /**
+   * 
+   * @memberof HomeScreen
+   */
+  _uploadAsByteArray = async (pickerResultAsByteArray, progressCallback) => {
 
     try {
-      var xhr = new XMLHttpRequest();
-      xhr.open('GET', pickerResult.uri, true);
 
-      xhr.responseType = 'arraybuffer';
-
-      xhr.onload = function (e) {
-        if (this.status == 200) {
-          var uInt8Array = new Uint8Array(this.response);
-
-          var metadata = {
-            contentType: 'image/jpeg',
-          };
-
-          var storageRef = firebase.storage().ref();
-          var ref = storageRef.child('images/mountains.jpg')
-          let uploadTask = ref.put(uInt8Array, metadata)
-
-          uploadTask.on('state_changed', function (snapshot) {
-
-            cb(snapshot.bytesTransferred / snapshot.totalBytes)
-
-            var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log('Upload is ' + progress + '% done');
-            switch (snapshot.state) {
-              case firebase.storage.TaskState.PAUSED: // or 'paused'
-                console.log('Upload is paused');
-                break;
-              case firebase.storage.TaskState.RUNNING: // or 'running'
-                console.log('Upload is running');
-                break;
-            }
-          }, function (error) {
-            // Handle unsuccessful uploads
-            console.log(error)
-          }, function () {
-            var downloadURL = uploadTask.snapshot.downloadURL;
-            console.log(uploadTask.snapshot.downloadURL)
-          });
-        }
+      var metadata = {
+        contentType: 'image/jpeg',
       };
 
-      xhr.onerror = function (e) {
-        alert("Error " + e.target.status + " occurred while receiving the document.");
-      };
+      var storageRef = firebase.storage().ref();
+      var ref = storageRef.child('images/mountains.jpg')
+      let uploadTask = ref.put(pickerResultAsByteArray, metadata)
 
-      xhr.send();
+      uploadTask.on('state_changed', function (snapshot) {
+
+        progressCallback && progressCallback(snapshot.bytesTransferred / snapshot.totalBytes)
+
+        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        console.log('Upload is ' + progress + '% done');
+
+      }, function (error) {
+        console.log("in _uploadAsByteArray ", error)
+      }, function () {
+        var downloadURL = uploadTask.snapshot.downloadURL;
+        console.log("_uploadAsByteArray ", uploadTask.snapshot.downloadURL)
+      });
+
+
     } catch (ee) {
-      console.log(ee)
+      console.log("when trying to load _uploadAsByteArray ", ee)
     }
   }
-  
+
+  atob = (input) => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+
+    let str = input.replace(/=+$/, '');
+    let output = '';
+
+    if (str.length % 4 == 1) {
+      throw new Error("'atob' failed: The string to be decoded is not correctly encoded.");
+    }
+    for (let bc = 0, bs = 0, buffer, i = 0;
+      buffer = str.charAt(i++);
+
+      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
+        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
+    ) {
+      buffer = chars.indexOf(buffer);
+    }
+
+    return output;
+  }
+
   _pickImage = async (useCamera) => {
-    let pickerResult = null
+    var pickerResult
     if (useCamera) {
       pickerResult = await ImagePicker.launchCameraAsync({
         allowsEditing: true,
-        quality: 1,
+        quality: .8,
+        base64: true,
       });
     } else {
       pickerResult = await ImagePicker.launchImageLibraryAsync({
         allowsEditing: true,
-        quality: 1,
+        quality: .8,
+        base64: true
       });
     }
 
-    this._uploadAsByteArray(pickerResult, (progress) => {
+    this.setState({ avatarSource: 'data:image/png;base64,' + pickerResult.base64 })
+
+    this._uploadAsByteArray(this.convertToByteArray(pickerResult.base64), (progress) => {
       console.log(progress)
       this.setState({ progress })
     })
 
-  };
-}
+  }
+
+  convertToByteArray = (input) => {
+    var binary_string = this.atob(input);
+    var len = binary_string.length;
+    var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++) {
+      bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes
+  }
+
+};
+
 
 //
 // styles for the screen
