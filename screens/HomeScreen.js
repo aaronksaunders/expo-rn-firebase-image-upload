@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Image,
   Linking,
   Platform,
   ScrollView,
@@ -15,6 +14,8 @@ import {
 } from 'react-native';
 
 import { MonoText } from '../components/StyledText';
+import PhotoButton from '../components/PhotoButton'
+import PhotoContainer from '../components/PhotoContainer'
 
 import base64 from 'base-64'
 
@@ -37,6 +38,9 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
+
+
+
 export default class HomeScreen extends React.Component {
   static navigationOptions = {
     header: null,
@@ -53,43 +57,21 @@ export default class HomeScreen extends React.Component {
   }
 
   render() {
-    let w = Dimensions.get('window').width
+
     return (
       <View style={styles.container}>
         <ScrollView
           style={styles.container}
           contentContainerStyle={styles.contentContainer}>
 
-          {this.state.avatarSource == null ? null :
-            <Image
-              source={{ uri: this.state.avatarSource }}
-              style={{
-                alignSelf: 'center',
-                height: w * .80,
-                width: w * .80,
-                borderWidth: 1,
-              }}
-              resizeMode="contain"
-            />}
-          <View style={styles.helpContainer}>
-            <TouchableOpacity
-              onPress={() => this._pickImage(false)}
-              style={styles.helpLink}>
-              <Text style={styles.helpLinkText}>
-                Pick Image
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <PhotoContainer _avatarSource={this.state.avatarSource} />
 
-          <View style={styles.helpContainer}>
-            <TouchableOpacity
-              onPress={() => this._pickImage(true)}
-              style={styles.helpLink}>
-              <Text style={styles.helpLinkText}>
-                Take Photo
-              </Text>
-            </TouchableOpacity>
-          </View>
+          <PhotoButton _onPress={() => this._pickImage(false)}
+            title="Pick Image" />
+
+          <PhotoButton _onPress={() => this._pickImage(true)}
+            title="Take Photo" />
+
         </ScrollView>
 
         {
