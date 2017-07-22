@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  LayoutAnimation,
   View,
   NativeModules,
   ProgressViewIOS,
@@ -14,6 +15,8 @@ import {
 } from 'react-native';
 
 import { MonoText } from '../components/StyledText';
+
+import base64 from 'base-64'
 
 import Exponent, {
   Constants,
@@ -24,7 +27,12 @@ import Exponent, {
 import * as firebase from 'firebase';
 
 const firebaseConfig = {
-
+  apiKey: "AIzaSyCnAlHHFQBNnAwAIy0DMh712MCpC2kY8I8",
+  authDomain: "communitycurator-1552c.firebaseapp.com",
+  databaseURL: "https://communitycurator-1552c.firebaseio.com",
+  projectId: "communitycurator-1552c",
+  storageBucket: "communitycurator-1552c.appspot.com",
+  messagingSenderId: "410400297017"
 };
 
 firebase.initializeApp(firebaseConfig);
@@ -40,6 +48,9 @@ export default class HomeScreen extends React.Component {
     avatarSource: null
   }
 
+  componentWillUpdate() {
+    LayoutAnimation.easeInEaseOut();
+  }
 
   render() {
     let w = Dimensions.get('window').width
@@ -165,6 +176,8 @@ export default class HomeScreen extends React.Component {
       });
     }
 
+    if (pickerResult.cancelled) return;
+
     this.setState({ avatarSource: 'data:image/png;base64,' + pickerResult.base64 })
 
     this._uploadAsByteArray(this.convertToByteArray(pickerResult.base64), (progress) => {
@@ -175,7 +188,8 @@ export default class HomeScreen extends React.Component {
   }
 
   convertToByteArray = (input) => {
-    var binary_string = this.atob(input);
+
+    var binary_string = base64.encode(input)   //this.atob(input);
     var len = binary_string.length;
     var bytes = new Uint8Array(len);
     for (var i = 0; i < len; i++) {
