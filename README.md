@@ -82,3 +82,7 @@ Helper functions... See [https://snack.expo.io/BktW0xdje](https://snack.expo.io/
           
 
 #### make sure you set your firebase configuration in `HomeScreen.js` on line 26
+
+## Fix For VS Code Rendering
+
+https://github.com/Microsoft/vscode/issues/21577#issuecomment-283272360
