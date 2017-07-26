@@ -6,15 +6,17 @@ import {
   Dimensions
 } from 'react-native';
 
-export default  PhotoContainer = ({ _avatarSource }) => {
+import { Container, Thumbnail } from 'native-base';
+
+export default PhotoContainer = ({ _avatarSource }) => {
 
   let w = Dimensions.get('window').width
 
   return (
     <View>
       {_avatarSource == null ? null :
-        <Image
-          source={{ uri: _avatarSource }}
+
+        <Thumbnail square small source={{ uri: _avatarSource }}
           style={{
             alignSelf: 'center',
             height: w * .80,

@@ -4,7 +4,6 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   LayoutAnimation,
   View,
@@ -13,8 +12,11 @@ import {
   Dimensions
 } from 'react-native';
 
-import { MonoText } from '../components/StyledText';
-import PhotoButton from '../components/PhotoButton'
+import {
+  Container, Button, Text, Icon, List, ListItem,
+  Header, ActionSheet
+} from "native-base";
+
 import PhotoContainer from '../components/PhotoContainer'
 
 import base64 from 'base-64'
@@ -25,25 +27,28 @@ import Exponent, {
   registerRootComponent,
 } from 'expo';
 
-import * as firebase from 'firebase';
+import * as api from '../api/firebaseService'
 
-const firebaseConfig = {
-  apiKey: "AIzaSyCnAlHHFQBNnAwAIy0DMh712MCpC2kY8I8",
-  authDomain: "communitycurator-1552c.firebaseapp.com",
-  databaseURL: "https://communitycurator-1552c.firebaseio.com",
-  projectId: "communitycurator-1552c",
-  storageBucket: "communitycurator-1552c.appspot.com",
-  messagingSenderId: "410400297017"
-};
+const HeaderBtn = ({ navigation }) => {
 
-firebase.initializeApp(firebaseConfig);
+  const { params = {} } = navigation.state
+
+  return (
+    <Button transparent large onPress={() => params.pickImgeSource()}>
+      <Icon name='ios-camera' large />
+    </Button>
+  )
+}
+
 
 
 
 
 export default class HomeScreen extends React.Component {
-  static navigationOptions = {
-    header: null,
+  static navigationOptions = ({ navigation }) => {
+    return {
+      headerRight: <HeaderBtn navigation={navigation} />
+    }
   };
 
 
@@ -52,25 +57,54 @@ export default class HomeScreen extends React.Component {
     avatarSource: null
   }
 
+  componentDidMount() {
+    this.props.navigation.setParams({
+      pickImgeSource: () => { this._pickImageSource() }
+    })
+
+    api.getImagesFromFirebase().then((_results) => {
+      this.setState({ assets: _results })
+    })
+  }
+
   componentWillUpdate() {
     LayoutAnimation.easeInEaseOut();
+  }
+
+  _pickImageSource() {
+    ActionSheet.show(
+      {
+        options: ["Take Photo", "Pick From Album", "Cancel"],
+        cancelButtonIndex: 2,
+        title: "Testing ActionSheet"
+      },
+      buttonIndex => {
+        if (buttonIndex === 0) {
+          this._pickImage(true)
+        } else if (buttonIndex === 1) {
+          this._pickImage(false)
+        }
+      }
+    )
   }
 
   render() {
 
     return (
-      <View style={styles.container}>
+      <Container>
         <ScrollView
           style={styles.container}
           contentContainerStyle={styles.contentContainer}>
 
-          <PhotoContainer _avatarSource={this.state.avatarSource} />
-
-          <PhotoButton _onPress={() => this._pickImage(false)}
-            title="Pick Image" />
-
-          <PhotoButton _onPress={() => this._pickImage(true)}
-            title="Take Photo" />
+          <List>
+            {this.state.assets ? this.state.assets.map((a) => {
+              return (
+                <ListItem key={a.id}>
+                  <PhotoContainer _avatarSource={a.URL} />
+                </ListItem>
+              )
+            }) : null}
+          </List>
 
         </ScrollView>
 
@@ -80,47 +114,9 @@ export default class HomeScreen extends React.Component {
               progress={this.state.progress}
               style={{ padding: 20, height: 6 }} />
         }
-      </View>
+      </Container>
     );
   }
-
-
-  /**
-   * 
-   * @memberof HomeScreen
-   */
-  _uploadAsByteArray = async (pickerResultAsByteArray, progressCallback) => {
-
-    try {
-
-      var metadata = {
-        contentType: 'image/jpeg',
-      };
-
-      var storageRef = firebase.storage().ref();
-      var ref = storageRef.child('images/mountains.jpg')
-      let uploadTask = ref.put(pickerResultAsByteArray, metadata)
-
-      uploadTask.on('state_changed', function (snapshot) {
-
-        progressCallback && progressCallback(snapshot.bytesTransferred / snapshot.totalBytes)
-
-        var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        console.log('Upload is ' + progress + '% done');
-
-      }, function (error) {
-        console.log("in _uploadAsByteArray ", error)
-      }, function () {
-        var downloadURL = uploadTask.snapshot.downloadURL;
-        console.log("_uploadAsByteArray ", uploadTask.snapshot.downloadURL)
-      });
-
-
-    } catch (ee) {
-      console.log("when trying to load _uploadAsByteArray ", ee)
-    }
-  }
-
 
 
   _pickImage = async (useCamera) => {
@@ -142,8 +138,9 @@ export default class HomeScreen extends React.Component {
     if (pickerResult.cancelled) return;
 
     this.setState({ avatarSource: 'data:image/png;base64,' + pickerResult.base64 })
+    let byteArray = this.convertToByteArray(pickerResult.base64);
 
-    this._uploadAsByteArray(this.convertToByteArray(pickerResult.base64), (progress) => {
+    api.uploadAsByteArray(byteArray, (progress) => {
       console.log(progress)
       this.setState({ progress })
     })
@@ -168,24 +165,23 @@ export default class HomeScreen extends React.Component {
 // styles for the screen
 //
 const styles = StyleSheet.create({
-  container: {
+
+  viewContent: {
     flex: 1,
+    alignItems: 'center'
+  },
+
+  spacer10: {
+    paddingVertical: 10,
+  },
+
+  container: {
     backgroundColor: '#fff',
   },
 
   contentContainer: {
-    paddingTop: 80,
+    paddingTop: 20,
+    alignItems: 'center'
   },
 
-  helpContainer: {
-    marginTop: 15,
-    alignItems: 'center',
-  },
-  helpLink: {
-    paddingVertical: 15,
-  },
-  helpLinkText: {
-    fontSize: 14,
-    color: '#2e78b7',
-  },
 });

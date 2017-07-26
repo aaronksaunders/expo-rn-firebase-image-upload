@@ -4,12 +4,27 @@ import { AppLoading } from 'expo';
 import { FontAwesome } from '@expo/vector-icons';
 import RootNavigation from './navigation/RootNavigation';
 
+import { Root } from "native-base";
+
+import * as api from './api/firebaseService'
+
 import cacheAssetsAsync from './utilities/cacheAssetsAsync';
+
+import SignIn from './components/SignIn'
+
+import { Toast } from 'native-base';
 
 export default class AppContainer extends React.Component {
   state = {
     appIsReady: false,
   };
+
+  isSignedIn() {
+    return new Promise((resolve) => {
+      resolve(false)
+    })
+  }
+
 
   componentWillMount() {
     this._loadAssetsAsync();
@@ -27,7 +42,7 @@ export default class AppContainer extends React.Component {
     } catch (e) {
       console.warn(
         'There was an error caching assets (see: main.js), perhaps due to a ' +
-          'network timeout, so we skipped caching. Reload the app to try again.'
+        'network timeout, so we skipped caching. Reload the app to try again.'
       );
       console.log(e.message);
     } finally {
@@ -35,16 +50,46 @@ export default class AppContainer extends React.Component {
     }
   }
 
-  render() {
-    if (this.state.appIsReady) {
-      return (
+  renderMainApp() {
+    return (
+      <Root>
         <View style={styles.container}>
           {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
           {Platform.OS === 'android' &&
             <View style={styles.statusBarUnderlay} />}
           <RootNavigation />
         </View>
-      );
+      </Root>
+    );
+  }
+
+
+  _handleLogin({ email, password }) {
+    console.log(email, password)
+    api.login(email, password).then((_user) => {
+      this.setState({ auth: true })
+      console.log("success",_user)
+    }, ({message}) => {
+
+      Toast.show({
+        text: message,
+        position: 'bottom',
+        type: 'danger',
+        buttonText: 'Okay'
+      })
+    })
+  }
+  renderLoginComponent() {
+    return (
+      <Root>
+        <SignIn onLogin={(_params) => this._handleLogin(_params)} />
+      </Root>
+    )
+  }
+
+  render() {
+    if (this.state.appIsReady) {
+      { return this.state.auth ? this.renderMainApp() : this.renderLoginComponent() }
     } else {
       return <AppLoading />;
     }

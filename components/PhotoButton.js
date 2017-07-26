@@ -1,22 +1,21 @@
 import React from 'react';
 import {
     StyleSheet,
-    Text,
     TouchableOpacity,
     View,
 } from 'react-native';
 
-export default PhotoButton = ({ _onPress, title }) => {
+import { Container, Button, Text } from 'native-base';
+
+export default PhotoButton = ({ _onPress, title, textColor }) => {
     return (
-        <View style={styles.helpContainer}>
-            <TouchableOpacity
-                onPress={_onPress}
-                style={styles.helpLink}>
-                <Text style={styles.helpLinkText}>
-                    {title}
-                </Text>
-            </TouchableOpacity>
-        </View>
+        <Button
+            onPress={_onPress}
+            style={styles.helpLink}>
+            <Text style={styles.helpLinkText} color={textColor}>
+                {title}
+            </Text>
+        </Button>
     )
 }
 
@@ -24,24 +23,8 @@ export default PhotoButton = ({ _onPress, title }) => {
 // styles for the screen
 //
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
-
-    contentContainer: {
-        paddingTop: 80,
-    },
-
     helpContainer: {
-        marginTop: 15,
+        paddingTop: 15,
         alignItems: 'center',
-    },
-    helpLink: {
-        paddingVertical: 15,
-    },
-    helpLinkText: {
-        fontSize: 14,
-        color: '#2e78b7',
     },
 });
