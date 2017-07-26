@@ -1,7 +1,12 @@
 import * as firebase from 'firebase';
 
 const firebaseConfig = {
-
+  apiKey: "AIzaSyCnAlHHFQBNnAwAIy0DMh712MCpC2kY8I8",
+  authDomain: "communitycurator-1552c.firebaseapp.com",
+  databaseURL: "https://communitycurator-1552c.firebaseio.com",
+  projectId: "communitycurator-1552c",
+  storageBucket: "communitycurator-1552c.appspot.com",
+  messagingSenderId: "410400297017"
 };
 
 firebase.initializeApp(firebaseConfig);

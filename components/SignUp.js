@@ -1,18 +1,20 @@
 import React from "react";
-import { View, TextInput } from "react-native";
+import { View } from "react-native";
+import { NavigationActions } from 'react-navigation';
 import { Container, Content, Card, Button, Form, Item, Input, Label, Text } from "native-base";
 
 
-class SignIn extends React.Component {
+export default class SignUp extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = { password: '', email: '' };
+        this.state = { password: '', email: '', username: '' };
     }
 
 
     render() {
-        let { navigation, screenProps: { onLogin } } = this.props;
+
+        let { navigation, screenProps: { onSignUp } } = this.props;
 
         return (
             <Container style={{ paddingVertical: 20, paddingHorizontal: 10 }} >
@@ -28,26 +30,32 @@ class SignIn extends React.Component {
                         <Item floatingLabel>
                             <Label>Password</Label>
                             <Input secureTextEntry
-                                type="text"
                                 value={this.state.password}
                                 onChangeText={e => this.setState({ 'password': e })} />
                         </Item>
+                        <Item floatingLabel last>
+                            <Label>User Name</Label>
+                            <Input type="text"
+                                value={this.state.username}
+                                onChangeText={e => this.setState({ 'username': e })} />
+                        </Item>
+
                     </Form>
                     <Button block
                         style={{ marginTop: 30 }}
                         onPress={() => {
-                            onLogin({ email: this.state.email, password: this.state.password })
+                            onSignUp(this.state);
                         }}>
-                        <Text>SIGN IN</Text>
-                    </Button>
-                    <Button block
-                        style={{ marginTop: 20 }}
-                        onPress={() => navigation.navigate("SignUp")}>
                         <Text>SIGN UP</Text>
+                    </Button>
+                    <Button block danger
+                        style={{ marginTop: 20 }}
+                        textStyle={{ color: "#bcbec1" }}
+                        onPress={() => navigation.dispatch(NavigationActions.back())}>
+                        <Text>CANCEL</Text>
                     </Button>
                 </Content>
             </Container>
         )
     }
 }
-export default SignIn

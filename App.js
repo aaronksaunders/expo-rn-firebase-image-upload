@@ -3,6 +3,7 @@ import { Platform, StatusBar, StyleSheet, View } from 'react-native';
 import { AppLoading } from 'expo';
 import { FontAwesome } from '@expo/vector-icons';
 import RootNavigation from './navigation/RootNavigation';
+import AuthNavigation from './navigation/AuthNavigation';
 
 import { Root } from "native-base";
 
@@ -68,8 +69,8 @@ export default class AppContainer extends React.Component {
     console.log(email, password)
     api.login(email, password).then((_user) => {
       this.setState({ auth: true })
-      console.log("success",_user)
-    }, ({message}) => {
+      console.log("success", _user)
+    }, ({ message }) => {
 
       Toast.show({
         text: message,
@@ -79,17 +80,40 @@ export default class AppContainer extends React.Component {
       })
     })
   }
-  renderLoginComponent() {
+
+
+  _handleSignUp(params) {
+    console.log(params)
+
+    // api.login(email, password).then((_user) => {
+    //   this.setState({ auth: true })
+    //   console.log("success", _user)
+    // }, ({ message }) => {
+
+    //   Toast.show({
+    //     text: message,
+    //     position: 'bottom',
+    //     type: 'danger',
+    //     buttonText: 'Okay'
+    //   })
+    // })
+  }
+
+
+  renderAuthComponent() {
     return (
       <Root>
-        <SignIn onLogin={(_params) => this._handleLogin(_params)} />
+        <AuthNavigation screenProps={{
+          onLogin: (_params) => this._handleLogin(_params),
+          onSignUp: (_params) => this._handleSignUp(_params)
+        }} />
       </Root>
     )
   }
 
   render() {
     if (this.state.appIsReady) {
-      { return this.state.auth ? this.renderMainApp() : this.renderLoginComponent() }
+      { return this.state.auth ? this.renderMainApp() : this.renderAuthComponent() }
     } else {
       return <AppLoading />;
     }
