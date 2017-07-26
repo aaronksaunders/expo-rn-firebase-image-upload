@@ -44,8 +44,9 @@ export const uploadAsByteArray = async (pickerResultAsByteArray, progressCallbac
       contentType: 'image/jpeg',
     };
 
+    let name = new Date().getTime() + "-media.jpg"
     var storageRef = firebase.storage().ref();
-    var ref = storageRef.child('images/mountains.jpg')
+    var ref = storageRef.child('assets/' + name)
     let uploadTask = ref.put(pickerResultAsByteArray, metadata)
 
     uploadTask.on('state_changed', function (snapshot) {
@@ -60,6 +61,17 @@ export const uploadAsByteArray = async (pickerResultAsByteArray, progressCallbac
     }, function () {
       var downloadURL = uploadTask.snapshot.downloadURL;
       console.log("_uploadAsByteArray ", uploadTask.snapshot.downloadURL)
+
+      // save a reference to the image for listing purposes
+      var ref = firebase.database().ref('assets');
+      ref.push({
+        'URL': downloadURL,
+        //'thumb': _imageData['thumb'],
+        'name': name,
+        //'coords': _imageData['coords'],
+        'owner': firebase.auth().currentUser && firebase.auth().currentUser.uid,
+        'when': new Date().getTime()
+      })
     });
 
 
