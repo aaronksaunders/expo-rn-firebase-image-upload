@@ -11,7 +11,6 @@ import * as api from './api/firebaseService'
 
 import cacheAssetsAsync from './utilities/cacheAssetsAsync';
 
-import SignIn from './components/SignIn'
 
 import { Toast } from 'native-base';
 

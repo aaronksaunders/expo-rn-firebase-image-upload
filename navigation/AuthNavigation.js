@@ -1,10 +1,8 @@
 import { StackNavigator } from 'react-navigation';
 import React from 'react';
 
-import SignIn from '../components/SignIn'
-import SignUp from '../components/SignUp'
-
-import { Toast } from 'native-base';
+import SignIn from '../screens/SignInScreen'
+import SignUp from '../screens/SignUpScreen'
 
 
 export default AuthNavigation = StackNavigator({
