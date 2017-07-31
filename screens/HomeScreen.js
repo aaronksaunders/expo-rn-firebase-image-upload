@@ -27,11 +27,11 @@ import PhotoContainer from '../components/PhotoContainer'
 
 import base64 from 'base-64'
 
-import Exponent, {Constants, ImagePicker, registerRootComponent} from 'expo';
+import Exponent, { Constants, ImagePicker, registerRootComponent } from 'expo';
 
 import * as api from '../api/firebaseService'
 
-const HeaderBtn = ({navigation}) => {
+const HeaderBtn = ({ navigation }) => {
 
   const {
     params = {}
@@ -39,14 +39,14 @@ const HeaderBtn = ({navigation}) => {
 
   return (
     <Button transparent large onPress={() => params.pickImgeSource()}>
-      <Icon name='ios-camera' large/>
+      <Icon name='ios-camera' large />
     </Button>
   )
 }
 
 export default class HomeScreen extends React.Component {
-  static navigationOptions = ({navigation}) => {
-    return {headerRight: <HeaderBtn navigation={navigation}/>}
+  static navigationOptions = ({ navigation }) => {
+    return { headerRight: <HeaderBtn navigation={navigation} /> }
   };
 
   state = {
@@ -67,7 +67,7 @@ export default class HomeScreen extends React.Component {
     api
       .getImagesFromFirebase()
       .then((_results) => {
-        this.setState({assets: _results})
+        this.setState({ assets: _results })
       })
   }
 
@@ -84,10 +84,11 @@ export default class HomeScreen extends React.Component {
         cancelButtonIndex: 2,
         title: "Testing ActionSheet"
       }, buttonIndex => {
+        // this 'buttonIndex value is a string on android and number on ios :-(
         console.log(buttonIndex)
-        if (buttonIndex === '0') {
+        if (buttonIndex+"" === '0') {
           this._pickImage(true)
-        } else if (buttonIndex === '1') {
+        } else if (buttonIndex+"" === '1') {
           this._pickImage(false)
         } else {
           console.log('nothing')
@@ -114,7 +115,7 @@ export default class HomeScreen extends React.Component {
                 .map((a) => {
                   return (
                     <ListItem key={a.id}>
-                      <PhotoContainer _avatarSource={a.URL}/>
+                      <PhotoContainer _avatarSource={a.URL} />
                     </ListItem>
                   )
                 })
@@ -128,27 +129,27 @@ export default class HomeScreen extends React.Component {
           : <ProgressViewIOS
             progress={this.state.progress}
             style={{
-            padding: 20,
-            height: 6
-          }}/>
-}
+              padding: 20,
+              height: 6
+            }} />
+        }
       </Container>
     );
   }
 
-  _pickImage = async(useCamera) => {
+  _pickImage = async (useCamera) => {
 
     console.log('in pick image')
     var pickerResult
     if (useCamera) {
-      pickerResult = await ImagePicker.launchCameraAsync({allowsEditing: true, quality: .8, base64: true});
+      pickerResult = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: .8, base64: true });
     } else {
-      pickerResult = await ImagePicker.launchImageLibraryAsync({allowsEditing: true, quality: .8, base64: true});
+      pickerResult = await ImagePicker.launchImageLibraryAsync({ allowsEditing: true, quality: .8, base64: true });
     }
 
-    if (pickerResult.cancelled) 
+    if (pickerResult.cancelled)
       return;
-    
+
     this.setState({
       avatarSource: 'data:image/png;base64,' + pickerResult.base64
     })
@@ -156,7 +157,7 @@ export default class HomeScreen extends React.Component {
 
     api.uploadAsByteArray(byteArray, (progress) => {
       console.log(progress)
-      this.setState({progress})
+      this.setState({ progress })
     })
 
   }
@@ -184,8 +185,7 @@ export default class HomeScreen extends React.Component {
 
   convertToByteArray = (input) => {
 
-    var binary_string =/*base64.encode(input)*/
-    this.atob(input);
+    var binary_string = this.atob(input);
     var len = binary_string.length;
     var bytes = new Uint8Array(len);
     for (var i = 0; i < len; i++) {
