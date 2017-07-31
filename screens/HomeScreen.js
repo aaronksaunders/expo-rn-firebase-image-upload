@@ -1,10 +1,13 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   ScrollView,
   StyleSheet,
   LayoutAnimation,
   ProgressViewIOS,
-  Platform
+  Platform,
+  View,
+  TouchableHighlight
 } from 'react-native';
 
 import {
@@ -19,10 +22,13 @@ import {
 } from "native-base";
 
 import PhotoContainer from '../components/PhotoContainer'
+import PhotoDetailModal from '../components/PhotoDetailModal'
 
-import base64 from 'base-64'
-
-import Exponent, { Constants, ImagePicker, registerRootComponent } from 'expo';
+import Exponent, {
+  Constants,
+  ImagePicker,
+  registerRootComponent
+} from 'expo';
 
 import * as api from '../api/firebaseService'
 
@@ -46,7 +52,9 @@ export default class HomeScreen extends React.Component {
 
   state = {
     progress: 1,
-    avatarSource: null
+    avatarSource: null,
+    modalVisible: false,
+    selectedImage: null
   }
 
   componentDidMount() {
@@ -68,6 +76,17 @@ export default class HomeScreen extends React.Component {
 
   componentWillUpdate() {
     LayoutAnimation.easeInEaseOut();
+  }
+
+
+  _toggleModal(_selectedImage) {
+    this.setState((prev) => {
+      return {
+        modalVisible: !prev.modalVisible,
+        selectedImage: _selectedImage
+      }
+    })
+
   }
 
   _pickImageSource() {
@@ -96,24 +115,36 @@ export default class HomeScreen extends React.Component {
 
   render() {
 
+    // get values...
+    let {
+      modalVisible,
+      selectedImage,
+      assets
+    } = this.state;
+
+    //render...
     return (
       <Container>
         <ScrollView
           style={styles.container}
           contentContainerStyle={styles.contentContainer}>
-
           <List>
-            {this.state.assets
-              ? this
-                .state
-                .assets
-                .map((a) => {
-                  return (
-                    <ListItem key={a.id}>
-                      <PhotoContainer _avatarSource={a.URL} />
-                    </ListItem>
-                  )
-                })
+
+            <PhotoDetailModal
+              modalVisible={modalVisible}
+              selectedImage={selectedImage}
+              toggleModal={() => { this._toggleModal(null) }}
+            />
+
+            {assets ? assets.map((a) => {
+              return (
+                <ListItem key={a.id}>
+                  <PhotoContainer
+                    avatarSource={a.URL}
+                    toggleModal={() => this._toggleModal(a)} />
+                </ListItem>
+              )
+            })
               : null}
           </List>
 
@@ -140,7 +171,7 @@ export default class HomeScreen extends React.Component {
 
     console.log('in pick image')
     var pickerResult
-    
+
     if (useCamera) {
       pickerResult = await ImagePicker.launchCameraAsync({
         allowsEditing: (Platform.OS === 'ios'),
@@ -155,9 +186,6 @@ export default class HomeScreen extends React.Component {
     if (pickerResult.cancelled)
       return;
 
-    this.setState({
-      avatarSource: 'data:image/png;base64,' + pickerResult.base64
-    })
     let byteArray = this.convertToByteArray(pickerResult.base64);
 
     api.uploadAsByteArray(byteArray, (progress) => {
