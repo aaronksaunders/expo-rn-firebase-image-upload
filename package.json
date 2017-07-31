@@ -1,8 +1,8 @@
 {
   "name": "expo-projects",
   "version": "0.0.0",
-  "description": "Hello Expo!",
-  "author": null,
+  "description": "file upload with camera using firebase",
+  "author": "aaron k saunders",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "test": "jest"

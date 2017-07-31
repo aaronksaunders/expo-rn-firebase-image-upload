@@ -1,15 +1,9 @@
 import React from 'react';
 import {
-  Linking,
-  Platform,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
   LayoutAnimation,
-  View,
-  NativeModules,
-  ProgressViewIOS,
-  Dimensions
+  ProgressViewIOS
 } from 'react-native';
 
 import {
@@ -86,9 +80,9 @@ export default class HomeScreen extends React.Component {
       }, buttonIndex => {
         // this 'buttonIndex value is a string on android and number on ios :-(
         console.log(buttonIndex)
-        if (buttonIndex+"" === '0') {
+        if (buttonIndex + "" === '0') {
           this._pickImage(true)
-        } else if (buttonIndex+"" === '1') {
+        } else if (buttonIndex + "" === '1') {
           this._pickImage(false)
         } else {
           console.log('nothing')
@@ -137,12 +131,20 @@ export default class HomeScreen extends React.Component {
     );
   }
 
+  /**
+   * 
+   * @memberof HomeScreen
+   */
   _pickImage = async (useCamera) => {
 
     console.log('in pick image')
     var pickerResult
     if (useCamera) {
-      pickerResult = await ImagePicker.launchCameraAsync({ allowsEditing: true, quality: .8, base64: true });
+      pickerResult = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        quality: .8,
+        base64: true
+      });
     } else {
       pickerResult = await ImagePicker.launchImageLibraryAsync({ allowsEditing: true, quality: .8, base64: true });
     }
