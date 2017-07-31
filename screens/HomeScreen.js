@@ -3,7 +3,8 @@ import {
   ScrollView,
   StyleSheet,
   LayoutAnimation,
-  ProgressViewIOS
+  ProgressViewIOS,
+  Platform
 } from 'react-native';
 
 import {
@@ -139,10 +140,12 @@ export default class HomeScreen extends React.Component {
 
     console.log('in pick image')
     var pickerResult
+    
     if (useCamera) {
       pickerResult = await ImagePicker.launchCameraAsync({
-        allowsEditing: true,
+        allowsEditing: (Platform.OS === 'ios'),
         quality: .8,
+        aspect: [1, 1],
         base64: true
       });
     } else {
