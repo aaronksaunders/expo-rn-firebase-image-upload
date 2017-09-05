@@ -10,12 +10,16 @@ import Colors from '../constants/Colors';
 
 import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
+import SquadScreen from '../screens/SquadScreen';
 
 export default TabNavigator(
   {
     Home: {
       screen: HomeScreen,
     },
+    Squad: {
+      screen: SquadScreen,
+    }, 
     Settings: {
       screen: SettingsScreen,
     },
@@ -29,6 +33,9 @@ export default TabNavigator(
         switch (routeName) {
           case 'Home':
             iconName = 'home';
+            break;
+          case 'Squad':
+            iconName = 'group';
             break;
           case 'Settings':
             iconName = 'cog';
