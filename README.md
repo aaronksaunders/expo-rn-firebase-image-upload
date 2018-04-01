@@ -1,83 +1,58 @@
 # Example of how to upload image in expo with react-native and firebase
 
-**Problem:** Issue uploading files in react-native in expo without detaching and issues with base64 images.
+**Problem:** Issue uploading files in react-native in expo without detaching?? 
 
-**Solution: ** convert it to a `Uint8Array` the upload it to firebase, see [firebase documention on ByteArray](https://firebase.google.com/docs/storage/web/upload-files#upload_from_a_string) 
+**Solution: ** Thanks to the latest release of Expo and React-Native it can be done exactly as described in the Firebase documentation. See below and sample app in repo
 
-```javascript
-this._uploadAsByteArray(this.convertToByteArray(pickerResult.base64), (progress) => {
-  console.log(progress)
-  this.setState({ progress })
-})
-```
+
 Upload function
 ```Javascript
-  _uploadAsByteArray = async (pickerResultAsByteArray, progressCallback) => {
+ export const uploadAsFile = async (uri, progressCallback) => {
 
-    try {
+  console.log("uploadAsFile", uri)
+  const response = await fetch(uri);
+  const blob = await response.blob();
 
-      var metadata = {
-        contentType: 'image/jpeg',
-      };
+  var metadata = {
+    contentType: 'image/jpeg',
+  };
 
-      var storageRef = firebase.storage().ref();
-      var ref = storageRef.child('images/mountains.jpg')
-      let uploadTask = ref.put(pickerResultAsByteArray, metadata)
+  let name = new Date().getTime() + "-media.jpg"
+  const ref = firebase
+    .storage()
+    .ref()
+    .child('assets/' + name)
 
-      uploadTask.on('state_changed', function (snapshot) {
+  const task = ref.put(blob, metadata);
 
+  return new Promise((resolve, reject) => {
+    task.on(
+      'state_changed',
+      (snapshot) => {
         progressCallback && progressCallback(snapshot.bytesTransferred / snapshot.totalBytes)
 
         var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         console.log('Upload is ' + progress + '% done');
+      },
+      (error) => reject(error), /* this is where you would put an error callback! */
+      () => {
+        var downloadURL = task.snapshot.downloadURL;
+        console.log("_uploadAsByteArray ", task.snapshot.downloadURL)
 
-      }, function (error) {
-        console.log("in _uploadAsByteArray ", error)
-      }, function () {
-        var downloadURL = uploadTask.snapshot.downloadURL;
-        console.log("_uploadAsByteArray ", uploadTask.snapshot.downloadURL)
-      });
-
-
-    } catch (ee) {
-      console.log("when trying to load _uploadAsByteArray ", ee)
-    }
-  }
-```  
-Helper functions... See [https://snack.expo.io/BktW0xdje](https://snack.expo.io/BktW0xdje)
-
-```Javascript
-
-  convertToByteArray = (input) => {
-    var binary_string = this.atob(input);
-    var len = binary_string.length;
-    var bytes = new Uint8Array(len);
-    for (var i = 0; i < len; i++) {
-      bytes[i] = binary_string.charCodeAt(i);
-    }
-    return bytes
-  }
-  
-  atob = (input) => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-
-    let str = input.replace(/=+$/, '');
-    let output = '';
-
-    if (str.length % 4 == 1) {
-      throw new Error("'atob' failed: The string to be decoded is not correctly encoded.");
-    }
-    for (let bc = 0, bs = 0, buffer, i = 0;
-      buffer = str.charAt(i++);
-
-      ~buffer && (bs = bc % 4 ? bs * 64 + buffer : buffer,
-        bc++ % 4) ? output += String.fromCharCode(255 & bs >> (-2 * bc & 6)) : 0
-    ) {
-      buffer = chars.indexOf(buffer);
-    }
-
-    return output;
-  }
+        // save a reference to the image for listing purposes
+        var ref = firebase.database().ref('assets');
+        ref.push({
+          'URL': downloadURL,
+          //'thumb': _imageData['thumb'],
+          'name': name,
+          //'coords': _imageData['coords'],
+          'owner': firebase.auth().currentUser && firebase.auth().currentUser.uid,
+          'when': new Date().getTime()
+        }).then(r => resolve(r), e => reject(e))
+      }
+    );
+  });
+}
 ```  
           
 
