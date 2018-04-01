@@ -14,39 +14,10 @@ import cacheAssetsAsync from './utilities/cacheAssetsAsync';
 
 import { Toast } from 'native-base';
 
-// MOBX
-import { Provider } from 'mobx-react'
-import squadStore from './store/store'
-
 export default class AppContainer extends React.Component {
-
-  constructor(props) {
-    super(props)
-
-    this.state = {
-      appIsReady: false,
-      auth: false
-    };
-
-    _unsubscribe = api.auth().onAuthStateChanged((user) => {
-      if (user) {
-        console.log("--------- LOGGED AS " + user.email + " ---------")
-        this.setState({ auth: true })
-        // firebaseApp.database().ref('users').child(user.uid).once('value')
-        //   .then((snapshot) => {
-        //     this.props.appStore.post_count = parseInt(snapshot.val().post_count)
-        //     this.props.appStore.order_count = parseInt(snapshot.val().order_count)
-        //     this.props.appStore.chat_count = parseInt(snapshot.val().chat_count)
-        //   })
-        // Actions.home({ type: 'replace', postProps: this.props.postProps })
-      }
-      else {
-        //this.setState({ initialScreen: true })
-      }
-      _unsubscribe()
-    })
-  }
-
+  state = {
+    appIsReady: false,
+  };
 
   isSignedIn() {
     return new Promise((resolve) => {
@@ -83,16 +54,14 @@ export default class AppContainer extends React.Component {
 
   renderMainApp() {
     return (
-      <Provider squadStore={squadStore}>
-        <Root>
-          <View style={styles.container}>
-            {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
-            {Platform.OS === 'android' &&
-              <View style={styles.statusBarUnderlay} />}
-            <RootNavigation />
-          </View>
-        </Root>
-      </Provider>
+      <Root>
+        <View style={styles.container}>
+          {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+          {Platform.OS === 'android' &&
+            <View style={styles.statusBarUnderlay} />}
+          <RootNavigation />
+        </View>
+      </Root>
     );
   }
 
@@ -134,14 +103,12 @@ export default class AppContainer extends React.Component {
 
   renderAuthComponent() {
     return (
-      <Provider squadStore={squadStore}>
-        <Root>
-          <AuthNavigation screenProps={{
-            onLogin: (_params) => this._handleLogin(_params),
-            onSignUp: (_params) => this._handleSignUp(_params)
-          }} />
-        </Root>
-      </Provider>
+      <Root>
+        <AuthNavigation screenProps={{
+          onLogin: (_params) => this._handleLogin(_params),
+          onSignUp: (_params) => this._handleSignUp(_params)
+        }} />
+      </Root>
     )
   }
 
