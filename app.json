@@ -4,7 +4,7 @@
     "description": "No description",
     "slug": "expo-projects",
     "privacy": "public",
-    "sdkVersion": "20.0.0",
+    "sdkVersion": "19.0.0",
     "version": "1.0.0",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
