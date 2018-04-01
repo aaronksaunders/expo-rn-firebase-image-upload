@@ -4,7 +4,7 @@
     "description": "No description",
     "slug": "expo-projects",
     "privacy": "public",
-    "sdkVersion": "19.0.0",
+    "sdkVersion": "26.0.0",
     "version": "1.0.0",
     "orientation": "portrait",
     "primaryColor": "#cccccc",
@@ -18,7 +18,12 @@
       "hideExponentText": false
     },
     "packagerOpts": {
-      "assetExts": ["ttf"]
+      "assetExts": [
+        "ttf",
+        "mp4",
+        "otf",
+        "xml"
+      ]
     },
     "ios": {
       "supportsTablet": true
